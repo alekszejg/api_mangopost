@@ -1,0 +1,8 @@
+# Sensitive files
+.env
+gmail/token.json
+
+# Runtime
+docker-compose.override.yml
+gmail/last_checked.json
+
