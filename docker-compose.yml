@@ -12,7 +12,8 @@ services:
     env_file:
       - ../env/.env.mangopost
     volumes:
-      - ../volumes/mangopost/token.json:/app/gmail
+      - ../volumes/mangopost/token.json:/app/gmail/token.json
+      - ../volumes/mangopost/last_checked.json:/app/gmail/last_checked.json
     logging:
       driver: json-file
       options:

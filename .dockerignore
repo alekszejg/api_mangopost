@@ -5,3 +5,4 @@ docker-compose.override.yml
 
 .env.mangopost
 /gmail/token.json
+/gmail/last_checked.json
