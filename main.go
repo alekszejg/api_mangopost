@@ -17,8 +17,8 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	if err := godotenv.Load(); err != nil {
-		slog.Error("failed to load .env variables:", slog.Any("error", err))
+	if err := godotenv.Load("./.env.mangopost"); err != nil {
+		slog.Error("failed to load .env.mangopost variables:", slog.Any("error", err))
 		os.Exit(1)
 	}
 
