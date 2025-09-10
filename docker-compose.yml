@@ -25,12 +25,11 @@ services:
           cpus: "0.5"
           memory: 512M
     networks:
-      - local
+      - api_net
 
 networks:
-  local:
-    external: true
-    name: deploy_local
+  api_net:
+    driver: bridge
 
 
 
