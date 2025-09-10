@@ -1,28 +1,18 @@
 version: '3.8'
 
 services:
-  api:
+  mangopost_api:
     build:
       context: ..
       dockerfile: Dockerfile
+    container_name: mangopost_api
     expose:
       - "8080"
     restart: unless-stopped
-    environment:
-      - MAIN_URL=${MAIN_URL} 
-      - GIN_MODE=${GIN_MODE}
-      - TRUSTED_PROXIES=${TRUSTED_PROXIES}
-      - G_CLIENT_ID=${G_CLIENT_ID}
-      - G_SECRET=${G_SECRET}
-      - G_MAIL=${G_MAIL}
-      - SLACK_ORDER_HISTORY=${SLACK_ORDER_HISTORY}
-      - SLACK_SCRIPT_ERRORS=${SLACK_SCRIPT_ERRORS}
-      - SLACK_INTERNAL_NOTIFICATIONS=${SLACK_INTERNAL_NOTIFICATIONS}
-      - WC_SECRET=${WC_SECRET}
-      - WC_ORDER_URL=${WC_ORDER_URL}
+    env_file:
+      - ../env/.env.mangopost
     volumes:
-      - ./.env:/app/.env
-      - ../gmail:/app/gmail
+      - ../volumes/mangopost/token.json:/app/gmail
     logging:
       driver: json-file
       options:
@@ -36,73 +26,11 @@ services:
     networks:
       - local
 
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf.template:/nginx.conf.template:ro
-      - ./data/certbot/conf:/etc/nginx/ssl:ro
-      - ./data/certbot/www:/var/www/certbot:ro
-      - ./logs/nginx:/var/log/nginx:rw
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-    restart: unless-stopped
-    environment:
-      - DOMAIN=${DOMAIN}
-      - IP=${IP}
-      - CERT_PATH=${CERT_PATH}
-    command: >
-      sh -c "envsubst '$$DOMAIN $$CERT_PATH $$IP'
-      < /nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
-    depends_on:
-    - api
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - local
+networks:
+  local:
+    external: true
+    name: deploy_local
 
-  certbot_onetime:
-    image: certbot/certbot:latest
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt:rw
-      - ./data/certbot/www:/var/www/certbot:rw
-    depends_on:
-      - nginx
-    command: >
-      certonly --webroot --webroot-path=/var/www/certbot
-      --email ${CERTBOT_EMAIL} --agree-tos --no-eff-email
-      -d ${DOMAIN}
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - local
 
-  certbot-renew:
-    image: certbot/certbot:latest
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt:rw
-      - ./data/certbot/www:/var/www/certbot:rw
-    depends_on:
-      - nginx
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot --webroot-path=/var/www/certbot; docker exec nginx nginx -s reload; sleep 7d; done'"
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - local
+
 
