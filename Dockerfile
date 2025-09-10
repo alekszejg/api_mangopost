@@ -15,7 +15,6 @@ WORKDIR /app
 # Copy CA certificates and binary
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/api .
-COPY --from=builder /app/gmail/token.json ./gmail/token.json
 COPY --from=builder /app/gmail/last_checked.json ./gmail/last_checked.json
 
 EXPOSE 8080
