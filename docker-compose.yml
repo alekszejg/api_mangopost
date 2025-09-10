@@ -29,6 +29,7 @@ services:
 
 networks:
   api_net:
+    name: api_net
     driver: bridge
 
 
