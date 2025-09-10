@@ -1,6 +1,7 @@
-.env 
-nginx.conf
-docker-compose.yml
-docker-compose.override.yml
 .git
 .gitignore
+docker-compose.yml
+docker-compose.override.yml
+
+.env.mangopost
+/gmail/token.json

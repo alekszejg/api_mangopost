@@ -1,5 +1,5 @@
 # Sensitive files
-.env
+.env.*
 gmail/token.json
 
 # Runtime
