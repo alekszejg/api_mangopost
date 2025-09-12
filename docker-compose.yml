@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mangopost_api:
     build:
-      context: ..
+      context: .
       dockerfile: Dockerfile
     container_name: mangopost_api
     expose:
