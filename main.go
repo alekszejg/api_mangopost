@@ -17,13 +17,19 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	if err := godotenv.Load("./.env.mangopost"); err != nil {
-		slog.Error("failed to load .env.mangopost variables:", slog.Any("error", err))
-		os.Exit(1)
+	mode := os.Getenv("GIN_MODE")
+	if mode == "" {
+		mode = "dev"
 	}
 
-	mode := os.Getenv("GIN_MODE")
 	slog.SetDefault(setupLogger(mode))
+
+	if mode == "dev" {
+		if err := godotenv.Load("./.env.mangopost"); err != nil {
+			slog.Error("failed to load .env.mangopost variables:", slog.Any("error", err))
+			os.Exit(1)
+		}
+	}
 
 	if err := initAtStartup(); err != nil {
 		slog.Error("Failed to start application", slog.Any("error", err))
@@ -34,7 +40,7 @@ func main() {
 
 	router := setupRouter(mode)
 
-	if mode == "debug" {
+	if mode == "dev" {
 		router.SetTrustedProxies(nil) // No proxies on localhost
 	} else {
 		proxies := os.Getenv("TRUSTED_PROXIES")

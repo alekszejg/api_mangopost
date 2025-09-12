@@ -18,7 +18,7 @@ import (
 
 func setupLogger(mode string) *slog.Logger {
 	var logger *slog.Logger
-	if mode == "debug" {
+	if mode == "dev" {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		}))
