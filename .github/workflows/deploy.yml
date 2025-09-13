@@ -45,3 +45,15 @@ jobs:
             if ! docker-compose ps | grep -q "healthy"; then
               echo "Healthcheck failed!" && exit 1
             fi  # Post-deploy check
+
+      - name: Report failed deployment
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Deployment failed! Check logs.'
+            })  # Or integrate Slack/email
