@@ -1,0 +1,47 @@
+name: We will survive later
+
+on:
+  push:
+    branches:
+      - dev  
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Validate Docker Compose # (syntax check)
+        run: docker-compose config
+
+  deploy:
+    needs: validate  # 1st validate above => deploy afterwards 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Crazy mega hack
+        uses: actions/checkout@v4
+
+      - name: SSH to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}  # your's server IP/domain
+          username: ${{ secrets.SSH_USERNAME }}  # 'deploy-user'
+          port: 22 
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  
+          script: |
+            cd /home/projects/mangopost
+            git checkout ${{ github.ref_name }}  
+            git pull origin ${{ github.ref_name }}
+  
+            docker-compose down
+            docker-compose up -d --pull always  # Pulls latest images
+            sleep 10  # Wait for startup
+            if ! docker-compose ps | grep -q "healthy"; then
+              echo "Healthcheck failed!" && exit 1
+            fi  # Post-deploy check
